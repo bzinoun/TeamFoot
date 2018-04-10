@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layoutRoot"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="4dp"
+    android:background="@android:color/white"
+    android:gravity="center">
+
+    <TextView
+        android:id="@+id/tvTeam1"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_toStartOf="@+id/imgTeam1"
+        android:gravity="center"
+        android:text="EVE"
+        android:textColor="@android:color/black"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <ImageView
+        android:id="@+id/imgTeam1"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_toStartOf="@+id/tvTime"
+        android:padding="10dp"
+        android:src="@mipmap/ic_eve" />
+
+    <TextView
+        android:id="@+id/tvTime"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:background="#acacac"
+        android:gravity="center"
+        android:padding="8dp"
+        android:text="15:20"
+        android:textColor="@android:color/white" />
+
+    <ImageView
+        android:id="@+id/imgTeam2"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_toEndOf="@+id/tvTime"
+        android:padding="10dp"
+        android:src="@mipmap/ic_ars" />
+
+    <TextView
+        android:id="@+id/tvTeam2"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_toEndOf="@+id/imgTeam2"
+        android:gravity="center"
+        android:text="ARS"
+        android:textColor="@android:color/black"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+</RelativeLayout>
