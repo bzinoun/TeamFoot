@@ -15,12 +15,19 @@ import com.bzinoun.premierleaguenews.R;
 import com.bzinoun.premierleaguenews.activity.TeamInfoActivity;
 import com.bzinoun.premierleaguenews.adapter.RankingAdapter;
 import com.bzinoun.premierleaguenews.interfaces.OnClickRanking;
+import com.bzinoun.premierleaguenews.model.data.RealmManager;
+import com.bzinoun.premierleaguenews.model.data.TeamDataBean;
+import com.bzinoun.premierleaguenews.model.data.TeamDataDao;
 import com.bzinoun.premierleaguenews.model.premierleagueteam.PremierLeagueRank;
+import com.bzinoun.premierleaguenews.model.premierleagueteam.Standing;
 import com.bzinoun.premierleaguenews.retrofit.FBAPIService;
 import com.bzinoun.premierleaguenews.utils.Utils;
 
-import butterknife.BindView;
+import java.util.ArrayList;
+import java.util.List;
+
 import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -33,27 +40,56 @@ import retrofit2.Response;
 
 public class ChartFragment extends Fragment implements OnClickRanking {
 
-    @BindView(R.id.listRank)
+    //@BindView(R.id.listRank)
     RecyclerView listRanking;
     private Utils utils = Utils.getInstance();
     private FBAPIService mService;
     private RankingAdapter rankingAdapter;
+    private List<TeamDataBean> teamDataList = new ArrayList<>();
+    private Unbinder bind;
+
+    public ChartFragment() {
+        setRetainInstance(true);
+        RealmManager.incrementCount();
+    }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
         View view = inflater.inflate(R.layout.fragment_chart, container, false);
-        ButterKnife.bind(this, view);
+
         mService = utils.getFABAPIService();
+        RealmManager.incrementCount();
+        final TeamDataDao teamDataDao = new TeamDataDao(RealmManager.getRealm());
+        teamDataList = teamDataDao.findAll();
+        bind = ButterKnife.bind(this, view);
+
+        listRanking = (RecyclerView) view.findViewById(R.id.listRank);
+        rankingAdapter = new RankingAdapter(getActivity(), new ArrayList<Standing>(), teamDataList);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+        listRanking.setLayoutManager(layoutManager);
+        listRanking.setHasFixedSize(false);
+        listRanking.setAdapter(rankingAdapter);
+        rankingAdapter.setOnClickRanking(ChartFragment.this);
+
+        getTeamRank();
+
+        return view;
+    }
+
+    private void getTeamRank() {
         mService.getTeamRank(getString(R.string.token), Utils.getLeagueId()).enqueue(new Callback<PremierLeagueRank>() {
             @Override
             public void onResponse(Call<PremierLeagueRank> call, Response<PremierLeagueRank> response) {
-                rankingAdapter = new RankingAdapter(getActivity(), response.body().getStanding());
-                listRanking.setHasFixedSize(false);
-                LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
-                listRanking.setLayoutManager(layoutManager);
-                listRanking.setAdapter(rankingAdapter);
-                rankingAdapter.setOnClickRanking(ChartFragment.this);
+
+
+                List<Standing> standingList = response.body().getStanding();
+
+                rankingAdapter.setData(standingList, teamDataList);
+
+                rankingAdapter.notifyDataSetChanged();
+
             }
 
             @Override
@@ -61,8 +97,6 @@ public class ChartFragment extends Fragment implements OnClickRanking {
                 Log.d("ChartFrag", t.toString() + "");
             }
         });
-
-        return view;
     }
 
     @Override
@@ -71,5 +105,12 @@ public class ChartFragment extends Fragment implements OnClickRanking {
         intent.putExtra("team_name", teamName);
         intent.putExtra("team_id", teamName);
         startActivity(intent);
+    }
+
+    @Override
+    public void onDestroy() {
+        RealmManager.decrementCount();
+        bind.unbind();
+        super.onDestroy();
     }
 }

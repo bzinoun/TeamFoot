@@ -1,12 +1,13 @@
 
-package com.bzinoun.premierleaguenews.model.player;
+package com.bzinoun.premierleaguenews.model.fixture;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-public class PlayerDataBean {
+//Fixwture data bean
+public class FixtureAPIBean {
 
     @SerializedName("_links")
     @Expose
@@ -14,9 +15,9 @@ public class PlayerDataBean {
     @SerializedName("count")
     @Expose
     private Integer count;
-    @SerializedName("players")
+    @SerializedName("fixtures")
     @Expose
-    private List<Player> players = null;
+    private List<Fixture> fixtures = null;
 
     public Links getLinks() {
         return links;
@@ -34,12 +35,12 @@ public class PlayerDataBean {
         this.count = count;
     }
 
-    public List<Player> getPlayers() {
-        return players;
+    public List<Fixture> getFixtures() {
+        return fixtures;
     }
 
-    public void setPlayers(List<Player> players) {
-        this.players = players;
+    public void setFixtures(List<Fixture> fixtures) {
+        this.fixtures = fixtures;
     }
 
 }

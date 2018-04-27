@@ -17,6 +17,7 @@ import com.bzinoun.premierleaguenews.R;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.Unbinder;
 
 /**
  * Created by hungvu on 8/29/2017.
@@ -36,11 +37,14 @@ public class MoreFragment extends Fragment {
     @BindView(R.id.layoutShare)
     LinearLayout layoutShare;
 
+    private Unbinder bind;
+
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_more, container, false);
-        ButterKnife.bind(this, view);
+        bind = ButterKnife.bind(this, view);
         return view;
     }
 
@@ -87,5 +91,11 @@ public class MoreFragment extends Fragment {
         });
         AlertDialog dialog = builder.create();
         dialog.show();
+    }
+
+    @Override
+    public void onDestroy() {
+        bind.unbind();
+        super.onDestroy();
     }
 }

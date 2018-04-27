@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 import com.bzinoun.premierleaguenews.R;
 import com.bzinoun.premierleaguenews.adapter.SquadAdapter;
 import com.bzinoun.premierleaguenews.model.player.Player;
-import com.bzinoun.premierleaguenews.model.player.PlayerDataBean;
+import com.bzinoun.premierleaguenews.model.player.PlayerApiBean;
 import com.bzinoun.premierleaguenews.retrofit.FBAPIService;
 import com.bzinoun.premierleaguenews.utils.Utils;
 
@@ -54,16 +54,16 @@ public class SquadFragment extends Fragment {
         ButterKnife.bind(this, view);
         int teamID = getArguments().getInt("link");
         mService = utils.getFABAPIService();
-        mService.getPlayerList(getString(R.string.token), teamID).enqueue(new Callback<PlayerDataBean>() {
+        mService.getPlayerList(getString(R.string.token), teamID).enqueue(new Callback<PlayerApiBean>() {
             @Override
-            public void onResponse(Call<PlayerDataBean> call, Response<PlayerDataBean> response) {
+            public void onResponse(Call<PlayerApiBean> call, Response<PlayerApiBean> response) {
                 List<Player> players = response.body().getPlayers();
                 initListPlayer(players);
 
             }
 
             @Override
-            public void onFailure(Call<PlayerDataBean> call, Throwable t) {
+            public void onFailure(Call<PlayerApiBean> call, Throwable t) {
 
             }
         });

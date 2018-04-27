@@ -13,12 +13,19 @@ import com.bzinoun.premierleaguenews.R;
 import com.bzinoun.premierleaguenews.fragment.team.OverviewFragment;
 import com.bzinoun.premierleaguenews.fragment.team.SquadFragment;
 import com.bzinoun.premierleaguenews.fragment.team.TeamFixtureFragment;
+import com.bzinoun.premierleaguenews.model.data.RealmManager;
+import com.bzinoun.premierleaguenews.model.data.TeamDataBean;
+import com.bzinoun.premierleaguenews.model.data.TeamDataDao;
 import com.bzinoun.premierleaguenews.retrofit.FBAPIService;
 import com.bzinoun.premierleaguenews.utils.Utils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.realm.Realm;
 
 public class TeamInfoActivity extends AppCompatActivity {
     @BindView(R.id.tabLayout)
@@ -29,21 +36,29 @@ public class TeamInfoActivity extends AppCompatActivity {
     ViewPager viewPager;
     private String teamName;
     private Utils utils = Utils.getInstance();
+    private Realm realm;
     private FBAPIService mService;
     private int logoSource;
     private String linkNews;
     private int teamId;
     private String fixtureTeam;
     private String playerTeam;
+    private List<TeamDataBean> teamDataList = new ArrayList<>();
 
     //e66c32d50df447358ea63b34235dc8c3
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        realm = Realm.getDefaultInstance();
         setContentView(R.layout.activity_team_info);
         ButterKnife.bind(this);
+
+        RealmManager.incrementCount();
+        final TeamDataDao teamDataDao = new TeamDataDao(RealmManager.getRealm());
+        teamDataList = teamDataDao.findAll();
+
         teamName = getIntent().getExtras().getString("team_name");
-        teamId = utils.getClubId(teamName);
+        teamId = utils.getClubId(teamName, teamDataList);
         fixtureTeam = "http://api.football-data.org/v1/teams/" + teamId + "/fixtures";
         playerTeam = "http://api.football-data.org/v1/teams/" + teamId + "/players";
         tvTitle.setText(teamName + "");

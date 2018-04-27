@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.drawable.PictureDrawable;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,11 +13,19 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.GenericRequestBuilder;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.model.StreamEncoder;
+import com.bumptech.glide.load.resource.file.FileToStreamDecoder;
 import com.bzinoun.premierleaguenews.R;
 import com.bzinoun.premierleaguenews.interfaces.OnClickRanking;
+import com.bzinoun.premierleaguenews.model.data.TeamDataBean;
 import com.bzinoun.premierleaguenews.model.premierleagueteam.Standing;
+import com.bzinoun.premierleaguenews.svgloading.SvgDecoder;
+import com.bzinoun.premierleaguenews.svgloading.SvgDrawableTranscoder;
+import com.bzinoun.premierleaguenews.svgloading.SvgSoftwareLayerSetter;
+import com.bzinoun.premierleaguenews.utils.Utils;
 import com.caverock.androidsvg.SVG;
-import com.squareup.picasso.Picasso;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -35,13 +44,22 @@ public class RankingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private GenericRequestBuilder<Uri, InputStream, SVG, PictureDrawable> requestBuilder;
     private Context context;
     private List<Standing> teams = new ArrayList<>();
+    private List<TeamDataBean> teamDataList = new ArrayList<>();
     private int TYPE_HEAD = 0, TYPE_NORMAL = 1;
-    private int logoSource;
+    private Utils utils = Utils.getInstance();
     private OnClickRanking onClickRanking;
 
-    public RankingAdapter(Context context, List<Standing> teams) {
+    public RankingAdapter(Context context, List<Standing> teams, List<TeamDataBean> teamDataList) {
         this.context = context;
         this.teams = teams;
+        this.teamDataList = teamDataList;
+    }
+
+    public void setData(List<Standing> teams, List<TeamDataBean> teamDataList) {
+
+        this.teams = teams;
+        this.teamDataList = teamDataList;
+        notifyDataSetChanged();
     }
 
     @Override
@@ -68,21 +86,27 @@ public class RankingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         if (position == 0) {
-
+            Log.d("", "onBindViewHolder: ERROR POSITION 0");
         } else {
 
             final Standing tmpTeam = teams.get(position - 1);
-            String shortName = getShortTeamName(tmpTeam.getTeamName());
+
+            TeamDataBean teamDataBean = utils.getTeamByName(tmpTeam.getTeamName(), teamDataList);
+
             RankingHolder rankingHolder = (RankingHolder) holder;
             rankingHolder.tvDraw.setText(tmpTeam.getDraws() + "");
             rankingHolder.tvGD.setText(tmpTeam.getGoalDifference() + "");
             rankingHolder.tvLost.setText(tmpTeam.getLosses() + "");
-            rankingHolder.tvNameClub.setText(shortName + "");
+            rankingHolder.tvNameClub.setText(teamDataBean.getShortName() + "");
             rankingHolder.tvPlayed.setText(tmpTeam.getPlayedGames() + "");
             rankingHolder.tvPoints.setText(tmpTeam.getPoints() + "");
             rankingHolder.tvPos.setText(tmpTeam.getPosition() + "");
-            Picasso.with(context).load(logoSource).into(rankingHolder.imgLogo);
+
+
+            //Picasso.with(context).load(logoSource).into(rankingHolder.imgLogo);
+            //  Picasso.with(context).load(teamDataBean.getCrestUrl()).into(rankingHolder.imgLogo);
             rankingHolder.layoutRowRoot.setOnClickListener(new View.OnClickListener() {
+
                 @Override
                 public void onClick(View view) {
                     onClickRanking.onClickTeam(tmpTeam.getTeamName());
@@ -91,31 +115,31 @@ public class RankingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             /*
             Code with svg link or drawable
              */
-//            if (!logo.endsWith(".svg")) {
-//                if (shortName.equalsIgnoreCase("LEI")) {
-//                    Picasso.with(context).load(R.mipmap.ic_lei).into(rankingHolder.imgLogo);
-//                } else
-//                    Picasso.with(context).load(logo).into(rankingHolder.imgLogo);
-//            } else {
-//                requestBuilder = Glide.with(context)
-//                        .using(Glide.buildStreamModelLoader(Uri.class, context), InputStream.class)
-//                        .from(Uri.class)
-//                        .as(SVG.class)
-//                        .transcode(new SvgDrawableTranscoder(), PictureDrawable.class)
-//                        .sourceEncoder(new StreamEncoder())
-//                        .cacheDecoder(new FileToStreamDecoder<SVG>(new SvgDecoder()))
-//                        .decoder(new SvgDecoder())
-//                        .placeholder(R.mipmap.ic_placeholder)
-//                        .error(R.mipmap.ic_placeholder)
-//                        .animate(android.R.anim.fade_in)
-//                        .listener(new SvgSoftwareLayerSetter<Uri>());
-//                Uri uri = Uri.parse(logo);
-//                requestBuilder
-//                        .diskCacheStrategy(DiskCacheStrategy.SOURCE)
-//                        // SVG cannot be serialized so it's not worth to cache it
-//                        .load(uri)
-//                        .into(rankingHolder.imgLogo);
-//            }
+            if (teamDataBean.getCrestUrl().contains("svg")) {
+                requestBuilder = Glide.with(context)
+                        .using(Glide.buildStreamModelLoader(Uri.class, context), InputStream.class)
+                        .from(Uri.class)
+                        .as(SVG.class)
+                        .transcode(new SvgDrawableTranscoder(), PictureDrawable.class)
+                        .sourceEncoder(new StreamEncoder())
+                        .cacheDecoder(new FileToStreamDecoder<SVG>(new SvgDecoder()))
+                        .decoder(new SvgDecoder())
+                        .placeholder(R.mipmap.ic_placeholder)
+                        .error(R.mipmap.ic_team)
+                        .animate(android.R.anim.fade_in)
+                        .listener(new SvgSoftwareLayerSetter<Uri>());
+                Uri uri = Uri.parse(teamDataBean.getCrestUrl());
+                requestBuilder
+                        .diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                        // SVG cannot be serialized so it's not worth to cache it
+                        .load(uri)
+                        .into(rankingHolder.imgLogo);
+            } else {
+
+                Glide.with(context).load(teamDataBean.getCrestUrl()).into(rankingHolder.imgLogo);
+
+            }
+
         }
 
 
@@ -127,75 +151,11 @@ public class RankingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     @Override
     public int getItemCount() {
-        return this.teams == null ? 0 : teams.size() + 1;
+
+        return this.teams == null ? 0 : teams.size() + 1
+                ;
     }
 
-    private String getShortTeamName(String teamFull) {
-        if (teamFull.equalsIgnoreCase("Manchester United FC")) {
-            logoSource = R.mipmap.ic_mu;
-            return "MUN";
-        } else if (teamFull.equalsIgnoreCase("Liverpool FC")) {
-            logoSource = R.mipmap.ic_liv;
-            return "LIV";
-        } else if (teamFull.equalsIgnoreCase("Huddersfield Town")) {
-            logoSource = R.mipmap.ic_hudder;
-            return "HUD";
-        } else if (teamFull.equalsIgnoreCase("Manchester City FC")) {
-            logoSource = R.mipmap.ic_mc;
-            return "MCI";
-        } else if (teamFull.equalsIgnoreCase("West Bromwich Albion FC")) {
-            logoSource = R.mipmap.ic_westbrom;
-            return "WBA";
-        } else if (teamFull.equalsIgnoreCase("Chelsea FC")) {
-            logoSource = R.mipmap.ic_chel;
-            return "CHE";
-        } else if (teamFull.equalsIgnoreCase("Watford FC")) {
-            logoSource = R.mipmap.ic_wat;
-            return "WAT";
-        } else if (teamFull.equalsIgnoreCase("Southampton FC")) {
-            logoSource = R.mipmap.ic_sou;
-            return "SOU";
-        } else if (teamFull.equalsIgnoreCase("Tottenham Hotspur FC")) {
-            logoSource = R.mipmap.ic_tot;
-            return "TOT";
-        } else if (teamFull.equalsIgnoreCase("Burnley FC")) {
-            logoSource = R.mipmap.ic_burney;
-            return "BUR";
-        } else if (teamFull.equalsIgnoreCase("Stoke City FC")) {
-            logoSource = R.mipmap.ic_stoke;
-            return "STK";
-        } else if (teamFull.equalsIgnoreCase("Everton FC")) {
-            logoSource = R.mipmap.ic_eve;
-            return "EVE";
-        } else if (teamFull.equalsIgnoreCase("Swansea City FC")) {
-            logoSource = R.mipmap.ic_swan;
-            return "SWA";
-        } else if (teamFull.equalsIgnoreCase("Newcastle United FC")) {
-            logoSource = R.mipmap.ic_new;
-            return "NEW";
-        } else if (teamFull.equalsIgnoreCase("Leicester City FC")) {
-            logoSource = R.mipmap.ic_lei;
-            return "LEI";
-        } else if (teamFull.equalsIgnoreCase("Arsenal FC")) {
-            logoSource = R.mipmap.ic_ars;
-            return "ARS";
-        } else if (teamFull.equalsIgnoreCase("Brighton & Hove Albion")) {
-            logoSource = R.mipmap.ic_bha;
-            return "BHA";
-        } else if (teamFull.equalsIgnoreCase("AFC Bournemouth")) {
-            logoSource = R.mipmap.ic_bou;
-            return "BOU";
-        } else if (teamFull.equalsIgnoreCase("Crystal Palace FC")) {
-            logoSource = R.mipmap.ic_cry;
-            return "CRY";
-        } else if (teamFull.equalsIgnoreCase("West Ham United FC")) {
-            logoSource = R.mipmap.ic_westham;
-            return "WHU";
-        } else {
-            logoSource = R.mipmap.ic_liv;
-            return "LFC";
-        }
-    }
 
     class RankingHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.tvPos)

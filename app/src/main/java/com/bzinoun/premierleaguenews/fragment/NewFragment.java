@@ -13,6 +13,7 @@ import com.bzinoun.premierleaguenews.R;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.Unbinder;
 
 /**
  * Created by hungvu on 8/29/2017.
@@ -23,15 +24,24 @@ import butterknife.ButterKnife;
 public class NewFragment extends Fragment {
     @BindView(R.id.webView)
     WebView webView;
+    private Unbinder bind;
+
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_new, container, false);
-        ButterKnife.bind(this, view);
+        bind = ButterKnife.bind(this, view);
         WebViewClient webViewClient = new WebViewClient();
         webView.setWebViewClient(webViewClient);
         webView.loadUrl("https://www.premierleague.com/");
         return view;
+    }
+
+
+    @Override
+    public void onDestroy() {
+        bind.unbind();
+        super.onDestroy();
     }
 }

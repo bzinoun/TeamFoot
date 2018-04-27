@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bzinoun.premierleaguenews.R;
+import com.bzinoun.premierleaguenews.model.data.TeamDataBean;
 import com.bzinoun.premierleaguenews.model.fixture.Fixture;
 import com.bzinoun.premierleaguenews.utils.Utils;
 
@@ -31,10 +32,12 @@ public class FixtureAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private Utils utils;
     private Context context;
     private List<Fixture> fixtureList = new ArrayList<>();
+    private List<TeamDataBean> teamDataList = new ArrayList<>();
 
-    public FixtureAdapter(Context context, List<Fixture> fixtures) {
+    public FixtureAdapter(Context context, List<Fixture> fixtures, List<TeamDataBean> teamDataList) {
         this.context = context;
         this.fixtureList = fixtures;
+        this.teamDataList = teamDataList;
         utils = Utils.getInstance();
     }
 
@@ -48,12 +51,12 @@ public class FixtureAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         Fixture currentFixture = fixtureList.get(position);
         FixtureHolder fixtureHolder = (FixtureHolder) holder;
-        int logo1 = utils.getLogoByName(currentFixture.getHomeTeamName());
+        int logo1 = utils.getLogoByName(currentFixture.getHomeTeamName(), teamDataList);
         fixtureHolder.imgLogo1.setImageResource(logo1);
-        int logo2 = utils.getLogoByName(currentFixture.getAwayTeamName());
+        int logo2 = utils.getLogoByName(currentFixture.getAwayTeamName(), teamDataList);
         fixtureHolder.imgLogo2.setImageResource(logo2);
-        fixtureHolder.tvTeam1.setText(utils.getShortTeamName(currentFixture.getHomeTeamName()));
-        fixtureHolder.tvTeam2.setText(utils.getShortTeamName(currentFixture.getAwayTeamName()));
+        fixtureHolder.tvTeam1.setText(utils.getShortTeamName(currentFixture.getHomeTeamName(), teamDataList));
+        fixtureHolder.tvTeam2.setText(utils.getShortTeamName(currentFixture.getAwayTeamName(), teamDataList));
         fixtureHolder.tvTime.setText(converToHour(currentFixture.getDate()));
         fixtureHolder.tvDate.setText(currentFixture.getDate());
 

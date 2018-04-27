@@ -19,17 +19,23 @@ import com.bzinoun.premierleaguenews.R;
 import com.bzinoun.premierleaguenews.adapter.LastestAdapter;
 import com.bzinoun.premierleaguenews.adapter.UpcomingAdapter;
 import com.bzinoun.premierleaguenews.interfaces.OnClickNextComming;
+import com.bzinoun.premierleaguenews.model.data.RealmManager;
+import com.bzinoun.premierleaguenews.model.data.TeamDataBean;
+import com.bzinoun.premierleaguenews.model.data.TeamDataDao;
 import com.bzinoun.premierleaguenews.model.detailfixture.FixtureBean;
 import com.bzinoun.premierleaguenews.model.fixture.Fixture;
-import com.bzinoun.premierleaguenews.model.fixture.FixtureDataBean;
+import com.bzinoun.premierleaguenews.model.fixture.FixtureAPIBean;
 import com.bzinoun.premierleaguenews.retrofit.FBAPIService;
+import com.bzinoun.premierleaguenews.service.TeamDataService;
 import com.bzinoun.premierleaguenews.utils.Utils;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -66,14 +72,24 @@ public class FixtureFragment extends Fragment implements LastestAdapter.OnClickL
     TextView tvAwayTeam;
     private Utils utils = Utils.getInstance();
     private FBAPIService mService;
+    private TeamDataService teamDataService = TeamDataService.getInstance();
+    private List<TeamDataBean> teamDataList = new ArrayList<>();
     private BottomSheetBehavior bottomSheetBehavior;
     private boolean isBottmSheetShow = false;
+    private List<TeamDataBean> all = null;
+    private Unbinder bind;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_fixtures, container, false);
-        ButterKnife.bind(this, view);
+
+        RealmManager.incrementCount();
+        final TeamDataDao teamDataDao = new TeamDataDao(RealmManager.getRealm());
+        List<TeamDataBean> teamDataList = teamDataDao.findAll();
+
+
+        bind = ButterKnife.bind(this, view);
         bottomSheetBehavior = BottomSheetBehavior.from(bottomSheetView);
         bottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override
@@ -94,26 +110,26 @@ public class FixtureFragment extends Fragment implements LastestAdapter.OnClickL
             }
         });
         mService = utils.getFABAPIService();
-        mService.getAllFixture(getString(R.string.token), Utils.getLeagueId(), "n7").enqueue(new Callback<FixtureDataBean>() {
+        mService.getAllFixture(getString(R.string.token), Utils.getLeagueId(), "n7").enqueue(new Callback<FixtureAPIBean>() {
             @Override
-            public void onResponse(Call<FixtureDataBean> call, Response<FixtureDataBean> response) {
+            public void onResponse(Call<FixtureAPIBean> call, Response<FixtureAPIBean> response) {
                 initUpcoming(response.body().getFixtures());
             }
 
             @Override
-            public void onFailure(Call<FixtureDataBean> call, Throwable t) {
+            public void onFailure(Call<FixtureAPIBean> call, Throwable t) {
 
             }
         });
 
-        mService.getAllFixture(getString(R.string.token), Utils.getLeagueId(), "p7").enqueue(new Callback<FixtureDataBean>() {
+        mService.getAllFixture(getString(R.string.token), Utils.getLeagueId(), "p7").enqueue(new Callback<FixtureAPIBean>() {
             @Override
-            public void onResponse(Call<FixtureDataBean> call, Response<FixtureDataBean> response) {
+            public void onResponse(Call<FixtureAPIBean> call, Response<FixtureAPIBean> response) {
                 initLastest(response.body().getFixtures());
             }
 
             @Override
-            public void onFailure(Call<FixtureDataBean> call, Throwable t) {
+            public void onFailure(Call<FixtureAPIBean> call, Throwable t) {
 
             }
         });
@@ -124,9 +140,12 @@ public class FixtureFragment extends Fragment implements LastestAdapter.OnClickL
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         listUpcoming.setLayoutManager(layoutManager);
         listUpcoming.setNestedScrollingEnabled(false);
-        UpcomingAdapter nextLastFixturesAdapter = new UpcomingAdapter(getContext(), upcomingList, 0);
+        UpcomingAdapter nextLastFixturesAdapter = new UpcomingAdapter(getContext(), upcomingList, 0, teamDataList);
         nextLastFixturesAdapter.setNextComming(FixtureFragment.this);
+        nextLastFixturesAdapter.notifyDataSetChanged();
         listUpcoming.setAdapter(nextLastFixturesAdapter);
+        nextLastFixturesAdapter.notifyDataSetChanged();
+
     }
 
 
@@ -134,9 +153,10 @@ public class FixtureFragment extends Fragment implements LastestAdapter.OnClickL
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         listLastest.setLayoutManager(layoutManager);
         listLastest.setNestedScrollingEnabled(false);
-        LastestAdapter nextLastFixturesAdapter = new LastestAdapter(getContext(), lastestList);
+        LastestAdapter nextLastFixturesAdapter = new LastestAdapter(getContext(), lastestList, teamDataList);
         nextLastFixturesAdapter.setOnClickLastest(FixtureFragment.this);
         listLastest.setAdapter(nextLastFixturesAdapter);
+        nextLastFixturesAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -149,11 +169,16 @@ public class FixtureFragment extends Fragment implements LastestAdapter.OnClickL
     @Override
     public void onClickNextComming(String fixtureLink, final String homeTeam, final String awayTeam) {
 
+
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-        Picasso.with(getContext()).load(utils.getLogoByName(homeTeam)).into(imgHomeTeam);
-        Picasso.with(getContext()).load(utils.getLogoByName(awayTeam)).into(imgAwayTeam);
-        tvHomeTeam.setText(utils.getShortTeamName(homeTeam));
-        tvAwayTeam.setText(utils.getShortTeamName(awayTeam));
+
+
+        Picasso.with(getContext()).load(utils.getLogoByName(homeTeam, all)).into(imgHomeTeam);
+        Picasso.with(getContext()).load(utils.getLogoByName(awayTeam, all)).into(imgAwayTeam);
+
+
+        tvHomeTeam.setText(utils.getShortTeamName(homeTeam, all));
+        tvAwayTeam.setText(utils.getShortTeamName(awayTeam, all));
 
         mService.getCurrentFixture(fixtureLink, getString(R.string.token)).enqueue(new Callback<FixtureBean>() {
             @Override
@@ -173,5 +198,12 @@ public class FixtureFragment extends Fragment implements LastestAdapter.OnClickL
                 Log.d("FixtureFrag", t.toString() + "");
             }
         });
+    }
+
+    @Override
+    public void onDestroy() {
+        RealmManager.decrementCount();
+        bind.unbind();
+        super.onDestroy();
     }
 }

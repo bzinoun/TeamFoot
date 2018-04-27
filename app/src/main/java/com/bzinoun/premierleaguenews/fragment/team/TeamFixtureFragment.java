@@ -11,11 +11,16 @@ import android.view.ViewGroup;
 
 import com.bzinoun.premierleaguenews.R;
 import com.bzinoun.premierleaguenews.adapter.FixtureAdapter;
+import com.bzinoun.premierleaguenews.model.data.RealmManager;
+import com.bzinoun.premierleaguenews.model.data.TeamDataBean;
+import com.bzinoun.premierleaguenews.model.data.TeamDataDao;
 import com.bzinoun.premierleaguenews.model.fixture.Fixture;
-import com.bzinoun.premierleaguenews.model.fixture.FixtureDataBean;
+import com.bzinoun.premierleaguenews.model.fixture.FixtureAPIBean;
 import com.bzinoun.premierleaguenews.retrofit.FBAPIService;
+import com.bzinoun.premierleaguenews.service.TeamDataService;
 import com.bzinoun.premierleaguenews.utils.Utils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -35,8 +40,10 @@ public class TeamFixtureFragment extends Fragment {
     @BindView(R.id.listFixture)
     RecyclerView listFixtures;
     private Utils utils = Utils.getInstance();
-    private FBAPIService mService;
-
+    FBAPIService mService;
+    private TeamDataService teamDataService = TeamDataService.getInstance();
+    private List<TeamDataBean> teamDataList = new ArrayList<>();
+    private TeamDataDao teamDataDao;
     public static TeamFixtureFragment getInstance(int link) {
         if (teamFixtureFragment == null) {
             teamFixtureFragment = new TeamFixtureFragment();
@@ -51,17 +58,20 @@ public class TeamFixtureFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_team, container, false);
+        RealmManager.incrementCount();
+        teamDataDao = new TeamDataDao(RealmManager.getRealm());
+
         ButterKnife.bind(this, view);
         int teamID = getArguments().getInt("link");
         mService = utils.getFABAPIService();
-        mService.getNextLastFixture(getString(R.string.token), teamID, "n30").enqueue(new Callback<FixtureDataBean>() {
+        mService.getNextLastFixture(getString(R.string.token), teamID, "n30").enqueue(new Callback<FixtureAPIBean>() {
             @Override
-            public void onResponse(Call<FixtureDataBean> call, Response<FixtureDataBean> response) {
+            public void onResponse(Call<FixtureAPIBean> call, Response<FixtureAPIBean> response) {
                 initFixture(response.body().getFixtures());
             }
 
             @Override
-            public void onFailure(Call<FixtureDataBean> call, Throwable t) {
+            public void onFailure(Call<FixtureAPIBean> call, Throwable t) {
 
             }
         });
@@ -69,9 +79,17 @@ public class TeamFixtureFragment extends Fragment {
     }
 
     public void initFixture(List<Fixture> listFixture) {
+        List<TeamDataBean> teamDataList = teamDataDao.findAll();
+
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         listFixtures.setLayoutManager(layoutManager);
-        FixtureAdapter fixtureAdapter = new FixtureAdapter(getContext(), listFixture);
+        FixtureAdapter fixtureAdapter = new FixtureAdapter(getContext(), listFixture, teamDataList);
         listFixtures.setAdapter(fixtureAdapter);
+    }
+
+    @Override
+    public void onDestroy() {
+        RealmManager.decrementCount();
+        super.onDestroy();
     }
 }

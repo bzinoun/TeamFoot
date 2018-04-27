@@ -18,6 +18,7 @@ import com.bzinoun.premierleaguenews.utils.Utils;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.realm.Realm;
 
 
 public class MainActivity extends BaseActivity {
@@ -29,12 +30,14 @@ public class MainActivity extends BaseActivity {
     private String result;
     private Utils utils = Utils.getInstance();
     private String TAG = "MainActivity";
+    private Realm realm;
     private PagerMainAdapter mainPagerAdapter;
 
     // team - bxh - news - about
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        realm = Realm.getDefaultInstance();
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         initViewPager();
@@ -43,14 +46,14 @@ public class MainActivity extends BaseActivity {
 
     public void initBottomBar() {
         AHBottomNavigationItem item1 = new AHBottomNavigationItem("Chart", R.mipmap.ic_chart);
-//        AHBottomNavigationItem item2 = new AHBottomNavigationItem("Team", R.mipmap.ic_team);
+        // AHBottomNavigationItem item2 = new AHBottomNavigationItem("Team", R.mipmap.ic_team);
         AHBottomNavigationItem item3 = new AHBottomNavigationItem("News", R.mipmap.ic_news);
         AHBottomNavigationItem item4 = new AHBottomNavigationItem("Fixtures", R.mipmap.ic_fixture);
         AHBottomNavigationItem item5 = new AHBottomNavigationItem("More", R.mipmap.ic_more);
         bottomNavigation.setBehaviorTranslationEnabled(false);
 
         bottomNavigation.addItem(item1);
-//        bottomNavigation.addItem(item2);
+        //bottomNavigation.addItem(item2);
         bottomNavigation.addItem(item3);
         bottomNavigation.addItem(item4);
         bottomNavigation.addItem(item5);

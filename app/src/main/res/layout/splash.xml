@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/status_bar_color"
+    tools:context="com.bzinoun.premierleaguenews.activity.SplashActivity">
+
+    <ImageView
+        android:id="@+id/myimg"
+        android:layout_width="36dip"
+        android:layout_height="36dip"
+        android:layout_centerHorizontal="true"
+        android:background="@mipmap/ic_logo_pre"
+        android:scaleType="fitXY" />
+
+
+    <Button
+        android:id="@+id/buttonStart"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center|bottom"
+        android:background="@color/cardview_shadow_start_color"
+        android:onClick="onClickStart"
+        android:text="GO"
+        android:textAlignment="center"
+        android:textSize="18sp"
+        android:visibility="visible" />
+
+    <ProgressBar
+        android:id="@+id/pbHeaderProgress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_weight="5"></ProgressBar>
+</android.support.design.widget.CoordinatorLayout>
