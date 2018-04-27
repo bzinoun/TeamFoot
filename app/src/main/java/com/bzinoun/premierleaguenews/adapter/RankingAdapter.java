@@ -13,17 +13,10 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.GenericRequestBuilder;
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.load.model.StreamEncoder;
-import com.bumptech.glide.load.resource.file.FileToStreamDecoder;
 import com.bzinoun.premierleaguenews.R;
 import com.bzinoun.premierleaguenews.interfaces.OnClickRanking;
 import com.bzinoun.premierleaguenews.model.data.TeamDataBean;
 import com.bzinoun.premierleaguenews.model.premierleagueteam.Standing;
-import com.bzinoun.premierleaguenews.svgloading.SvgDecoder;
-import com.bzinoun.premierleaguenews.svgloading.SvgDrawableTranscoder;
-import com.bzinoun.premierleaguenews.svgloading.SvgSoftwareLayerSetter;
 import com.bzinoun.premierleaguenews.utils.Utils;
 import com.caverock.androidsvg.SVG;
 
@@ -118,34 +111,42 @@ public class RankingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             /*
             Code with svg link or drawable
              */
-            if (teamDataBean.getCrestUrl().contains("svg")) {
-                requestBuilder = Glide.with(context)
-                        .using(Glide.buildStreamModelLoader(Uri.class, context), InputStream.class)
-                        .from(Uri.class)
-                        .as(SVG.class)
-                        .transcode(new SvgDrawableTranscoder(), PictureDrawable.class)
-                        .sourceEncoder(new StreamEncoder())
-                        .cacheDecoder(new FileToStreamDecoder<SVG>(new SvgDecoder()))
-                        .decoder(new SvgDecoder())
-                        .placeholder(R.mipmap.ic_placeholder)
-                        .error(R.mipmap.ic_team)
-                        .animate(android.R.anim.fade_in)
-                        .listener(new SvgSoftwareLayerSetter<Uri>());
-                Uri uri = Uri.parse(teamDataBean.getCrestUrl());
-                requestBuilder
-                        .diskCacheStrategy(DiskCacheStrategy.SOURCE)
-                        // SVG cannot be serialized so it's not worth to cache it
-                        .load(uri)
-                        .into(rankingHolder.imgLogo);
-            } else {
-
-                Glide.with(context).load(teamDataBean.getCrestUrl()).into(rankingHolder.imgLogo);
-
-            }
+            BindImageUrlToView(teamDataBean, rankingHolder);
 
         }
 
 
+    }
+
+    private void BindImageUrlToView(TeamDataBean teamDataBean, RankingHolder rankingHolder) {
+
+        Utils.BindImageUrlToView(requestBuilder , context , utils.getLogoByName(teamDataBean.getName() ,teamDataList), rankingHolder.imgLogo);
+
+
+     /*   if (teamDataBean.getCrestUrl().contains("svg")) {
+            requestBuilder = Glide.with(context)
+                    .using(Glide.buildStreamModelLoader(Uri.class, context), InputStream.class)
+                    .from(Uri.class)
+                    .as(SVG.class)
+                    .transcode(new SvgDrawableTranscoder(), PictureDrawable.class)
+                    .sourceEncoder(new StreamEncoder())
+                    .cacheDecoder(new FileToStreamDecoder<SVG>(new SvgDecoder()))
+                    .decoder(new SvgDecoder())
+                    .placeholder(R.mipmap.ic_placeholder)
+                    .error(R.mipmap.ic_team)
+                    .animate(android.R.anim.fade_in)
+                    .listener(new SvgSoftwareLayerSetter<Uri>());
+            Uri uri = Uri.parse(teamDataBean.getCrestUrl());
+            requestBuilder
+                    .diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                    // SVG cannot be serialized so it's not worth to cache it
+                    .load(uri)
+                    .into(rankingHolder.imgLogo);
+        } else {
+
+            Glide.with(context).load(teamDataBean.getCrestUrl()).into(rankingHolder.imgLogo);
+
+        }*/
     }
 
     public void setOnClickRanking(OnClickRanking onClickRanking) {

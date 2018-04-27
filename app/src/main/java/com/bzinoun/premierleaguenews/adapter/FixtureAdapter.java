@@ -1,6 +1,8 @@
 package com.bzinoun.premierleaguenews.adapter;
 
 import android.content.Context;
+import android.graphics.drawable.PictureDrawable;
+import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,11 +10,14 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.GenericRequestBuilder;
 import com.bzinoun.premierleaguenews.R;
 import com.bzinoun.premierleaguenews.model.data.TeamDataBean;
 import com.bzinoun.premierleaguenews.model.fixture.Fixture;
 import com.bzinoun.premierleaguenews.utils.Utils;
+import com.caverock.androidsvg.SVG;
 
+import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -33,6 +38,8 @@ public class FixtureAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private Context context;
     private List<Fixture> fixtureList = new ArrayList<>();
     private List<TeamDataBean> teamDataList = new ArrayList<>();
+    private GenericRequestBuilder<Uri, InputStream, SVG, PictureDrawable> requestBuilder;
+
 
     public FixtureAdapter(Context context, List<Fixture> fixtures, List<TeamDataBean> teamDataList) {
         this.context = context;
@@ -51,16 +58,21 @@ public class FixtureAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         Fixture currentFixture = fixtureList.get(position);
         FixtureHolder fixtureHolder = (FixtureHolder) holder;
-        int logo1 = utils.getLogoByName(currentFixture.getHomeTeamName(), teamDataList);
-        fixtureHolder.imgLogo1.setImageResource(logo1);
-        int logo2 = utils.getLogoByName(currentFixture.getAwayTeamName(), teamDataList);
-        fixtureHolder.imgLogo2.setImageResource(logo2);
+       // int logo1 = utils.getLogoByName(currentFixture.getHomeTeamName(), teamDataList);
+        //int logo2 = utils.getLogoByName(currentFixture.getAwayTeamName(), teamDataList);
+
+        Utils.BindImageUrlToView(requestBuilder , context , utils.getLogoByName(currentFixture.getHomeTeamName() ,teamDataList), fixtureHolder.imgLogo1);
+
+        Utils.BindImageUrlToView( requestBuilder ,context ,  utils.getLogoByName(currentFixture.getAwayTeamName(), teamDataList) , fixtureHolder.imgLogo2);
+
         fixtureHolder.tvTeam1.setText(utils.getShortTeamName(currentFixture.getHomeTeamName(), teamDataList));
         fixtureHolder.tvTeam2.setText(utils.getShortTeamName(currentFixture.getAwayTeamName(), teamDataList));
         fixtureHolder.tvTime.setText(converToHour(currentFixture.getDate()));
         fixtureHolder.tvDate.setText(currentFixture.getDate());
 
     }
+
+
 
 
     public String converToHour(String time) {

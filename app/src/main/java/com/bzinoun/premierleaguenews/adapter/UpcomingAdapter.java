@@ -1,6 +1,8 @@
 package com.bzinoun.premierleaguenews.adapter;
 
 import android.content.Context;
+import android.graphics.drawable.PictureDrawable;
+import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,12 +11,15 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.GenericRequestBuilder;
 import com.bzinoun.premierleaguenews.R;
 import com.bzinoun.premierleaguenews.interfaces.OnClickNextComming;
 import com.bzinoun.premierleaguenews.model.data.TeamDataBean;
 import com.bzinoun.premierleaguenews.model.fixture.Fixture;
 import com.bzinoun.premierleaguenews.utils.Utils;
+import com.caverock.androidsvg.SVG;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +38,8 @@ public class UpcomingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private Context context;
     private List<Fixture> fixtureList = new ArrayList<>();
     List<TeamDataBean> teamDataList = new ArrayList<>();
+    private GenericRequestBuilder<Uri, InputStream, SVG, PictureDrawable> requestBuilder;
+
     private int flag = 0;
     //flag = 0 : next
     //flag = 1 : last
@@ -54,9 +61,15 @@ public class UpcomingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         NextLastHolder nextLastHolder = (NextLastHolder) holder;
         final Fixture currentFixture = fixtureList.get(position);
-        nextLastHolder.imgTeam1.setImageResource(utils.getLogoByName(currentFixture.getHomeTeamName(), teamDataList));
         nextLastHolder.tvTeam1.setText(utils.getShortTeamName(currentFixture.getHomeTeamName(), teamDataList));
-        nextLastHolder.imgTeam2.setImageResource(utils.getLogoByName(currentFixture.getAwayTeamName(), teamDataList));
+
+        //nextLastHolder.imgTeam1.setImageResource(utils.getLogoByName(currentFixture.getHomeTeamName(), teamDataList));
+        //nextLastHolder.imgTeam2.setImageResource(utils.getLogoByName(currentFixture.getAwayTeamName(), teamDataList));
+
+        Utils.BindImageUrlToView(requestBuilder , context , utils.getLogoByName( currentFixture.getHomeTeamName(),teamDataList), nextLastHolder.imgTeam2);
+        Utils.BindImageUrlToView( requestBuilder ,context ,  utils.getLogoByName(currentFixture.getAwayTeamName(), teamDataList) , nextLastHolder.imgTeam1);
+
+
         nextLastHolder.tvTeam2.setText(utils.getShortTeamName(currentFixture.getAwayTeamName(), teamDataList));
         nextLastHolder.layoutRoot.setOnClickListener(new View.OnClickListener() {
             @Override

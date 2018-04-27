@@ -3,11 +3,23 @@ package com.bzinoun.premierleaguenews.utils;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.Color;
+import android.graphics.drawable.PictureDrawable;
+import android.net.Uri;
+import android.widget.ImageView;
 
+import com.bumptech.glide.GenericRequestBuilder;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.model.StreamEncoder;
+import com.bumptech.glide.load.resource.file.FileToStreamDecoder;
 import com.bzinoun.premierleaguenews.R;
 import com.bzinoun.premierleaguenews.model.data.TeamDataBean;
 import com.bzinoun.premierleaguenews.retrofit.FBAPIService;
 import com.bzinoun.premierleaguenews.retrofit.RetrofitClient;
+import com.bzinoun.premierleaguenews.svgloading.SvgDecoder;
+import com.bzinoun.premierleaguenews.svgloading.SvgDrawableTranscoder;
+import com.bzinoun.premierleaguenews.svgloading.SvgSoftwareLayerSetter;
+import com.caverock.androidsvg.SVG;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -72,17 +84,30 @@ public class Utils {
         return 1;
     }
 
-    public int getLogoByName(String teamFull, List<TeamDataBean> teamDataList) {
-
-        TeamDataBean team = getTeamByName(teamFull, teamDataList);
-
-        if (team != null) {
-            return R.mipmap.ic_chel;
-            //return team.getCrestUrl();
-
+    public static  void BindImageUrlToView(GenericRequestBuilder<Uri, InputStream, SVG, PictureDrawable> requestBuilder , Context context, String url, ImageView imgLogo1)
+    {
+        if (url.contains("svg")) {
+            requestBuilder = Glide.with(context)
+                    .using(Glide.buildStreamModelLoader(Uri.class, context), InputStream.class)
+                    .from(Uri.class)
+                    .as(SVG.class)
+                    .transcode(new SvgDrawableTranscoder(), PictureDrawable.class)
+                    .sourceEncoder(new StreamEncoder())
+                    .cacheDecoder(new FileToStreamDecoder<SVG>(new SvgDecoder()))
+                    .decoder(new SvgDecoder())
+                    .placeholder(R.mipmap.ic_placeholder)
+                    .error(R.mipmap.ic_team)
+                    .animate(android.R.anim.fade_in)
+                    .listener(new SvgSoftwareLayerSetter<Uri>());
+            Uri uri = Uri.parse(url);
+            requestBuilder
+                    .diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                    // SVG cannot be serialized so it's not worth to cache it
+                    .load(uri)
+                    .into(imgLogo1);
         } else {
-            return R.mipmap.ic_news;
 
+            Glide.with(context).load(url).into(imgLogo1);
 
         }
     }
@@ -124,10 +149,19 @@ public class Utils {
 
     }
 
-    public static float getTextClubTextSize(String NameClub , float currentSize) {
+    public String getLogoByName(String teamFull, List<TeamDataBean> teamDataList) {
+
+        TeamDataBean team = getTeamByName(teamFull, teamDataList);
+
+        if (team != null) {
+            return team.getCrestUrl();
+            //return team.getCrestUrl();
+
+        } else {
+            return "";
 
 
-        return currentSize-5;
+        }
     }
 
 

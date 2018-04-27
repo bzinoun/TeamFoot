@@ -59,8 +59,8 @@ public class TeamInfoActivity extends AppCompatActivity {
 
         teamName = getIntent().getExtras().getString("team_name");
         teamId = utils.getClubId(teamName, teamDataList);
-        fixtureTeam = "http://api.football-data.org/v1/teams/" + teamId + "/fixtures";
-        playerTeam = "http://api.football-data.org/v1/teams/" + teamId + "/players";
+        //fixtureTeam = "http://api.football-data.org/v1/teams/" + teamId + "/fixtures";
+        //playerTeam = "http://api.football-data.org/v1/teams/" + teamId + "/players";
         tvTitle.setText(teamName + "");
         viewPager.setOffscreenPageLimit(2);
         TeamAdapter teamAdapter = new TeamAdapter(getSupportFragmentManager(), linkNews, teamId);
