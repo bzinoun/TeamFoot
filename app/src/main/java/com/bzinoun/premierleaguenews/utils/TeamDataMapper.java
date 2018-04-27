@@ -1,6 +1,7 @@
 package com.bzinoun.premierleaguenews.utils;
 
 import com.bzinoun.premierleaguenews.model.data.TeamDataBean;
+import com.bzinoun.premierleaguenews.model.team.Self_;
 import com.bzinoun.premierleaguenews.model.team.Team;
 
 import java.util.ArrayList;
@@ -32,6 +33,11 @@ public class TeamDataMapper {
             team.setShortName(vTeam.getShortName());
             team.setCrestUrl(vTeam.getCrestUrl());
 
+            Self_ self = vTeam.getLinks().getSelf();
+            String url = self.getHref();
+            String[] parts = url.split("/");
+            String id = parts[parts.length-1] ;
+            team.setId(id);
             listTeamData.add(team);
 
 
