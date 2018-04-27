@@ -2,6 +2,7 @@ package com.bzinoun.premierleaguenews.utils;
 
 import android.content.Context;
 import android.content.res.AssetManager;
+import android.graphics.Color;
 
 import com.bzinoun.premierleaguenews.R;
 import com.bzinoun.premierleaguenews.model.data.TeamDataBean;
@@ -112,6 +113,21 @@ public class Utils {
         return null;
     }
 
+    public static int getTextColor(int point){
+        if(point > 0)
+            return Color.rgb(106,198,57);
+        else if(point < 0)
+            return Color.RED ;
+
+        return Color.LTGRAY ;
+
+    }
+
+    public static float getTextClubTextSize(String NameClub , float currentSize) {
+
+
+        return currentSize-5;
+    }
 
 
 }

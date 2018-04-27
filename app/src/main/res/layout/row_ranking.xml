@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:autofit="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:id="@+id/layoutRowRoot"
@@ -28,28 +30,40 @@
         </RelativeLayout>
 
         <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_width="5dp"
+            android:layout_height="wrap_content"
             android:layout_weight="2"
-            android:gravity="center"
+            android:gravity="center_vertical"
             android:orientation="horizontal">
 
             <ImageView
                 android:id="@+id/imgLogo"
                 android:layout_width="@dimen/height_row_rank"
                 android:layout_height="@dimen/height_row_rank"
-                android:padding="5dp"
-                android:scaleType="centerCrop"
+                android:layout_gravity="center_horizontal"
+                android:padding="6dp"
+                android:scaleType="fitCenter"
                 android:src="@mipmap/ic_liv" />
 
-            <TextView
+            <!--  <TextView
                 android:id="@+id/tvNameClub"
-                android:layout_width="wrap_content"
+                android:layout_width="60dp"
                 android:layout_height="wrap_content"
                 android:text="LIV"
                 android:textColor="@android:color/black"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textSize="20sp"
+                android:textStyle="bold" /> -->
+
+            <me.grantland.widget.AutofitTextView
+                android:id="@+id/tvNameClub"
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"
+                android:gravity="left|center"
+                android:singleLine="true"
+                android:text="Liv"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                autofit:minTextSize="10sp" />
         </LinearLayout>
 
         <RelativeLayout

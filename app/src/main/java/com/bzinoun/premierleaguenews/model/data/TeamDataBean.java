@@ -63,4 +63,10 @@ public class TeamDataBean extends RealmObject {
     public void setCrestUrl(String crestUrl) {
         this.crestUrl = crestUrl;
     }
+
+    public void setShortNameView(String shortName)
+    {
+        this.shortName = shortName;
+    }
+
 }

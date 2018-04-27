@@ -26,6 +26,7 @@ import com.bzinoun.premierleaguenews.utils.Utils;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import retrofit2.Call;
@@ -40,7 +41,7 @@ import retrofit2.Response;
 
 public class ChartFragment extends Fragment implements OnClickRanking {
 
-    //@BindView(R.id.listRank)
+    @BindView(R.id.listRank)
     RecyclerView listRanking;
     private Utils utils = Utils.getInstance();
     private FBAPIService mService;
@@ -65,14 +66,12 @@ public class ChartFragment extends Fragment implements OnClickRanking {
         teamDataList = teamDataDao.findAll();
         bind = ButterKnife.bind(this, view);
 
-        listRanking = (RecyclerView) view.findViewById(R.id.listRank);
         rankingAdapter = new RankingAdapter(getActivity(), new ArrayList<Standing>(), teamDataList);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         listRanking.setLayoutManager(layoutManager);
         listRanking.setHasFixedSize(false);
         listRanking.setAdapter(rankingAdapter);
         rankingAdapter.setOnClickRanking(ChartFragment.this);
-
         getTeamRank();
 
         return view;
@@ -83,13 +82,10 @@ public class ChartFragment extends Fragment implements OnClickRanking {
             @Override
             public void onResponse(Call<PremierLeagueRank> call, Response<PremierLeagueRank> response) {
 
-
                 List<Standing> standingList = response.body().getStanding();
 
                 rankingAdapter.setData(standingList, teamDataList);
-
                 rankingAdapter.notifyDataSetChanged();
-
             }
 
             @Override

@@ -96,12 +96,15 @@ public class RankingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             RankingHolder rankingHolder = (RankingHolder) holder;
             rankingHolder.tvDraw.setText(tmpTeam.getDraws() + "");
             rankingHolder.tvGD.setText(tmpTeam.getGoalDifference() + "");
+            rankingHolder.tvGD.setTextColor(Utils.getTextColor(tmpTeam.getGoalDifference()));
             rankingHolder.tvLost.setText(tmpTeam.getLosses() + "");
             rankingHolder.tvNameClub.setText(teamDataBean.getShortName() + "");
+
             rankingHolder.tvPlayed.setText(tmpTeam.getPlayedGames() + "");
             rankingHolder.tvPoints.setText(tmpTeam.getPoints() + "");
-            rankingHolder.tvPos.setText(tmpTeam.getPosition() + "");
 
+
+            rankingHolder.tvPos.setText(tmpTeam.getPosition() + "");
 
             //Picasso.with(context).load(logoSource).into(rankingHolder.imgLogo);
             //  Picasso.with(context).load(teamDataBean.getCrestUrl()).into(rankingHolder.imgLogo);
