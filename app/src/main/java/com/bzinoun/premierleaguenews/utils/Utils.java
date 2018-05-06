@@ -120,10 +120,10 @@ public class Utils {
 
         if (team != null) {
 
-            return team.getCode();
+            return team.getCode() != null ? team.getCode() : team.getShortName();
 
         } else {
-            return teamFull.substring(0, 3);
+            return teamFull.trim().substring(0, 7);
         }
     }
 

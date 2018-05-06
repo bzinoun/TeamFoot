@@ -61,16 +61,15 @@ public class UpcomingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         NextLastHolder nextLastHolder = (NextLastHolder) holder;
         final Fixture currentFixture = fixtureList.get(position);
+
         nextLastHolder.tvTeam1.setText(utils.getShortTeamName(currentFixture.getHomeTeamName(), teamDataList));
-
-        //nextLastHolder.imgTeam1.setImageResource(utils.getLogoByName(currentFixture.getHomeTeamName(), teamDataList));
-        //nextLastHolder.imgTeam2.setImageResource(utils.getLogoByName(currentFixture.getAwayTeamName(), teamDataList));
-
-        Utils.BindImageUrlToView(requestBuilder , context , utils.getLogoByName( currentFixture.getHomeTeamName(),teamDataList), nextLastHolder.imgTeam2);
-        Utils.BindImageUrlToView( requestBuilder ,context ,  utils.getLogoByName(currentFixture.getAwayTeamName(), teamDataList) , nextLastHolder.imgTeam1);
-
-
         nextLastHolder.tvTeam2.setText(utils.getShortTeamName(currentFixture.getAwayTeamName(), teamDataList));
+
+
+        Utils.BindImageUrlToView(requestBuilder , context , utils.getLogoByName( currentFixture.getHomeTeamName(),teamDataList), nextLastHolder.imgTeam1);
+        Utils.BindImageUrlToView( requestBuilder ,context ,  utils.getLogoByName(currentFixture.getAwayTeamName(), teamDataList) , nextLastHolder.imgTeam2);
+
+
         nextLastHolder.layoutRoot.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

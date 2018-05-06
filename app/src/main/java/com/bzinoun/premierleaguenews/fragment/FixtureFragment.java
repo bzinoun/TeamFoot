@@ -1,5 +1,7 @@
 package com.bzinoun.premierleaguenews.fragment;
 
+import android.graphics.drawable.PictureDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -15,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.GenericRequestBuilder;
 import com.bzinoun.premierleaguenews.R;
 import com.bzinoun.premierleaguenews.adapter.LastestAdapter;
 import com.bzinoun.premierleaguenews.adapter.UpcomingAdapter;
@@ -28,8 +31,10 @@ import com.bzinoun.premierleaguenews.model.fixture.FixtureAPIBean;
 import com.bzinoun.premierleaguenews.retrofit.FBAPIService;
 import com.bzinoun.premierleaguenews.service.TeamDataService;
 import com.bzinoun.premierleaguenews.utils.Utils;
+import com.caverock.androidsvg.SVG;
 import com.squareup.picasso.Picasso;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -72,12 +77,12 @@ public class FixtureFragment extends Fragment implements LastestAdapter.OnClickL
     TextView tvAwayTeam;
     private Utils utils = Utils.getInstance();
     private FBAPIService mService;
-    private TeamDataService teamDataService = TeamDataService.getInstance();
     private List<TeamDataBean> teamDataList = new ArrayList<>();
     private BottomSheetBehavior bottomSheetBehavior;
     private boolean isBottmSheetShow = false;
-    private List<TeamDataBean> all = null;
     private Unbinder bind;
+    private GenericRequestBuilder<Uri, InputStream, SVG, PictureDrawable> requestBuilder;
+
 
     @Nullable
     @Override
@@ -86,7 +91,7 @@ public class FixtureFragment extends Fragment implements LastestAdapter.OnClickL
 
         RealmManager.incrementCount();
         final TeamDataDao teamDataDao = new TeamDataDao(RealmManager.getRealm());
-        List<TeamDataBean> teamDataList = teamDataDao.findAll();
+        teamDataList = teamDataDao.findAll();
 
 
         bind = ButterKnife.bind(this, view);
@@ -173,12 +178,14 @@ public class FixtureFragment extends Fragment implements LastestAdapter.OnClickL
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
 
 
-        Picasso.with(getContext()).load(utils.getLogoByName(homeTeam, all)).into(imgHomeTeam);
-        Picasso.with(getContext()).load(utils.getLogoByName(awayTeam, all)).into(imgAwayTeam);
+        utils.BindImageUrlToView(requestBuilder,getContext(),utils.getLogoByName(homeTeam, teamDataList) , imgHomeTeam);
+        utils.BindImageUrlToView(requestBuilder,getContext(),utils.getLogoByName(awayTeam, teamDataList) , imgAwayTeam);
 
+        final String shortTeamNameHome = utils.getShortTeamName(homeTeam, teamDataList);
+        final String shortTeamNameAWay = utils.getShortTeamName(awayTeam, teamDataList);
 
-        tvHomeTeam.setText(utils.getShortTeamName(homeTeam, all));
-        tvAwayTeam.setText(utils.getShortTeamName(awayTeam, all));
+        tvHomeTeam.setText(shortTeamNameHome);
+        tvAwayTeam.setText(shortTeamNameAWay);
 
         mService.getCurrentFixture(fixtureLink, getString(R.string.token)).enqueue(new Callback<FixtureBean>() {
             @Override
